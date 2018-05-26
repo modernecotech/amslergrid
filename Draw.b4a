@@ -1,0 +1,175 @@
+﻿Version=3.2
+IconFile=
+NumberOfModules=0
+Package=oico.AMSLER
+DoNotOverwriteManifest=False
+ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: http://www.basic4ppc.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="4" android:targetSdkVersion="14"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~'End of default text.~\n~
+UserTypesHint=
+NumberOfFiles=1
+File1=261_OtherAMSLER1.jpg
+NumberOfLibraries=2
+Library1=core
+Library2=reflection
+@EndOfDesignText@
+#Region Module Attributes
+	#FullScreen: True
+	#IncludeTitle: False
+	#ApplicationLabel: OICO AMSLER GRID
+	#VersionCode: 1
+	#VersionName: 
+	#SupportedOrientations: Landscape
+	#CanInstallToExternalStorage: True
+#End Region
+
+'Activity module
+Sub Process_Globals
+    Dim fromx,fromy,tox,toy As Int
+End Sub
+
+Sub Globals
+    Dim Obj1, Obj2, Obj3 As Reflector
+    
+    Dim Panel1 As Panel
+    Dim picCanvas As Canvas
+	Dim bm As Bitmap
+    Dim Button2, Button3 As Button
+	Dim PatientName As EditText
+
+    Dim DestRect As Rect
+End Sub
+
+Sub Activity_Create(FirstTime As Boolean)
+    
+'    Activity.LoadLayout("Layout")
+    
+		Panel1.Initialize("Panel1")
+		
+		bm.Initialize(File.DirAssets,"261_OtherAMSLER1.jpg")
+		
+		Activity.AddView(Panel1, 250, 0dip, 750, 750)
+		
+    picCanvas.Initialize(Panel1)
+    DestRect.Initialize(0dip, 0dip, 750, 750)
+    'picCanvas.DrawRect(DestRect, Colors.Transparent, True, 1dip)
+	picCanvas.DrawBitmap(bm, Null, DestRect)
+    Panel1.Invalidate
+
+    ' sets events on Panel1 using the common View events in the Reflection library
+    Obj1.Target = Panel1 
+    Obj1.SetOnTouchListener("Panel1_OnTouch")
+	Button2.Initialize("Button2")
+	Button2.Text = "Clear"
+	Activity.AddView(Button2,0,100,100,70dip)
+
+	'for save button
+	 Obj2.Target = Panel1 
+    Obj2.SetOnTouchListener("Panel1_OnTouch")
+	Button3.Initialize("Button3")
+	Button3.Text = "Save"
+	Activity.AddView(Button3,0,300,100,70dip)
+	
+	'Patient Name
+	Obj3.Target= Panel1
+	PatientName.Initialize("Patient Name")
+	PatientName.Hint = "Enter patient name here"
+	PatientName.TextColor = Colors.Red
+	Activity.AddView(PatientName,0,0,300,70dip)
+End Sub
+
+Sub Activity_Resume
+
+End Sub
+
+Sub Activity_Pause (UserClosed As Boolean)
+
+End Sub
+
+Sub Panel1_OnTouch(viewtag As Object, action As Int, X As Float, Y As Float, motionevent As Object) As Boolean
+  Select action
+	Case Activity.ACTION_DOWN
+    'puts a circle if the user just touches the screen briefly
+     fromx = X
+     fromy = Y
+     picCanvas.DrawCircle(fromx, fromy, 2dip, Colors.ARGB(50,240,16,16), True, 1dip)
+	Case Activity.ACTION_UP
+		'puts final circle as the user lifts their finger off the screen
+		tox = X
+		toy = Y
+		picCanvas.DrawCircle(tox, toy, 2dip, Colors.ARGB(50,240,16,16), True, 1dip)
+	Case Activity.ACTION_MOVE
+		'Filled circles stop jaggies between lines
+		tox = X
+		toy = Y
+		picCanvas.DrawCircle(fromx, fromy, 2dip, Colors.Red, True, 1dip)
+		picCanvas.DrawLine(fromx,fromy,tox,toy,Colors.Red,4dip)
+		picCanvas.DrawCircle(tox, toy, 2dip, Colors.Red, True, 1dip)
+		Log(fromx&" "&fromy&" "&tox&" "&toy)
+		fromx = tox
+		fromy = toy
+
+
+
+
+
+'	Case Activity.ACTION_DOWN
+'    'puts a circle if the user just touches the screen briefly
+'     fromx = X
+'     fromy = Y
+'     picCanvas.DrawCircle(fromx, fromy, 10dip, Colors.red, True, 1dip)
+'	Case Activity.ACTION_UP
+'		'puts final circle as the user lifts their finger off the screen
+'		tox = X
+'		toy = Y
+'		picCanvas.DrawCircle(tox, toy, 10dip, Colors.red, True, 1dip)
+'	Case Activity.ACTION_MOVE
+'		'Filled circles stop jaggies between lines
+'		tox = X
+'		toy = Y
+'		picCanvas.DrawCircle(fromx, fromy, 10dip, Colors.red, True, 1dip)
+'		picCanvas.DrawLine(fromx,fromy,tox,toy,Colors.red,20dip)
+'		picCanvas.DrawCircle(tox, toy, 10dip, Colors.red, True, 1dip)
+'		'Log(fromx&" "&fromy&" "&tox&" "&toy)
+'		fromx = tox
+'		fromy = toy		
+		
+	End Select 
+	Panel1.Invalidate    
+	Return True
+End Sub
+
+Sub Button2_Click
+  'Clears the drawing
+	picCanvas.DrawBitmap(bm, Null, DestRect)
+	Panel1.Invalidate
+End Sub
+
+Sub Button3_Click
+
+Dim AmsObj1, AmsObj2 As Reflector
+  Dim bmp As Bitmap
+  Dim c As Canvas
+  Dim now, i As Long
+   Dim dt As String
+   DateTime.DateFormat = "yyMMddHHmmss"
+   now = DateTime.now
+   dt = DateTime.Date(now) ' e.g.: "110812150355" is Aug.12, 2011, 3:03:55 p.m. 
+  AmsObj1.Target = AmsObj1.GetActivityBA
+  AmsObj1.Target = AmsObj1.GetField("vg")
+  bmp.InitializeMutable(Activity.Width, Activity.Height)
+  c.Initialize2(bmp)
+  Dim args(1) As Object
+  Dim types(1) As String
+  Dim PatientString As String
+  PatientString = PatientName.Text
+  AmsObj2.Target = c
+  AmsObj2.Target = AmsObj2.GetField("canvas")
+  args(0) = AmsObj2.Target
+  types(0) = "android.graphics.Canvas"
+  AmsObj1.RunMethod4("draw", args, types)
+  Dim Out As OutputStream
+  Out = File.OpenOutput(File.DirRootExternal & "/DCIM", PatientString & dt & ".png", False)
+  bmp.WriteToStream(Out, 100, "PNG")
+  Out.Close
+End Sub
+
+
